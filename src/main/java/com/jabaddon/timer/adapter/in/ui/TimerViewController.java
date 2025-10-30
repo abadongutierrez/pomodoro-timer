@@ -9,7 +9,9 @@ import com.jabaddon.timer.adapter.out.systemtray.NoOpSystemTrayAdapter;
 import com.jabaddon.timer.adapter.out.systemtray.SystemTrayMacOsAdapter;
 import com.jabaddon.timer.application.port.in.GetTimerStateQuery;
 import com.jabaddon.timer.application.port.out.SystemTrayPort;
+import com.jabaddon.timer.application.port.out.UIPort;
 import com.jabaddon.timer.application.service.TimerApplicationService;
+import com.jabaddon.timer.domain.model.SessionType;
 
 import javafx.animation.AnimationTimer;
 import javafx.geometry.Insets;
@@ -30,9 +32,11 @@ import javafx.stage.Stage;
  * Supports dual-view mode:
  * - FULL mode: All controls visible when focused
  * - COMPACT mode: Timer-only when unfocused, floating on top
+ *
+ * Implements UIUpdatePort to receive notifications from the application service.
  */
 @Component
-public class TimerViewController {
+public class TimerViewController implements UIPort {
     private static final Logger log = LoggerFactory.getLogger(TimerViewController.class);
 
     // Application service (use cases)
@@ -68,6 +72,60 @@ public class TimerViewController {
     private Label compactInfoLabel;
 
     private AnimationTimer updateLoop;
+
+    // ========== Style Constants ==========
+
+    /**
+     * Centralized style definitions for consistent theming.
+     */
+    private static class StyleConstants {
+        // Colors
+        static final String COLOR_BACKGROUND = "#2b2b2b";
+        static final String COLOR_BACKGROUND_RGBA = "rgba(43, 43, 43, 0.95)";
+        static final String COLOR_BACKGROUND_RGBA_HOVER = "rgba(43, 43, 43, 0.98)";
+        static final String COLOR_WHITE = "white";
+        static final String COLOR_WORK = "#4CAF50";
+        static final String COLOR_WORK_LIGHT = "#66BB6A";
+        static final String COLOR_WARNING = "#FF9800";
+        static final String COLOR_DANGER = "#f44336";
+        static final String COLOR_CYCLE = "#FFC107";
+        static final String COLOR_INFO = "#2196F3";
+
+        // Font sizes
+        static final int FONT_SIZE_SESSION_TYPE = 24;
+        static final int FONT_SIZE_TIMER_LARGE = 72;
+        static final int FONT_SIZE_TIMER_COMPACT = 48;
+        static final int FONT_SIZE_CYCLE = 16;
+        static final int FONT_SIZE_CYCLE_COMPACT = 14;
+        static final int FONT_SIZE_DAILY_COUNT = 18;
+        static final int FONT_SIZE_MINUTE_LABEL = 16;
+        static final int FONT_SIZE_BUTTON = 14;
+
+        // Button styles
+        static final String BUTTON_BASE_STYLE = "-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;";
+        static final String BUTTON_START = "-fx-background-color: " + COLOR_WORK + "; " + BUTTON_BASE_STYLE;
+        static final String BUTTON_PAUSE = "-fx-background-color: " + COLOR_WARNING + "; " + BUTTON_BASE_STYLE;
+        static final String BUTTON_RESET = "-fx-background-color: " + COLOR_DANGER + "; " + BUTTON_BASE_STYLE;
+
+        // Layout styles
+        static final String LAYOUT_FULL_MODE = "-fx-background-color: " + COLOR_BACKGROUND + ";";
+        static final String LAYOUT_COMPACT_MODE =
+            "-fx-background-color: " + COLOR_BACKGROUND_RGBA + ";" +
+            "-fx-background-radius: 10;" +
+            "-fx-border-radius: 10;" +
+            "-fx-border-color: " + COLOR_WORK + ";" +
+            "-fx-border-width: 2;";
+        static final String LAYOUT_COMPACT_MODE_HOVER =
+            "-fx-background-color: " + COLOR_BACKGROUND_RGBA_HOVER + ";" +
+            "-fx-background-radius: 10;" +
+            "-fx-border-radius: 10;" +
+            "-fx-border-color: " + COLOR_WORK_LIGHT + ";" +
+            "-fx-border-width: 3;";
+
+        // Dimensions
+        static final int BUTTON_WIDTH = 100;
+        static final int SPINNER_WIDTH = 100;
+    }
 
     public TimerViewController(TimerApplicationService timerService, ApplicationContext applicationContext) {
         this.timerService = timerService;
@@ -119,7 +177,7 @@ public class TimerViewController {
         VBox root = new VBox(20);
         root.setPadding(new Insets(30));
         root.setAlignment(Pos.CENTER);
-        root.setStyle("-fx-background-color: #2b2b2b;");
+        root.setStyle(StyleConstants.LAYOUT_FULL_MODE);
 
         // Setup UI components
         setupFullModeLabels();
@@ -140,30 +198,30 @@ public class TimerViewController {
 
     private void setupFullModeLabels() {
         sessionTypeLabel = new Label("WORK SESSION");
-        sessionTypeLabel.setFont(Font.font("Arial", FontWeight.BOLD, 24));
-        sessionTypeLabel.setTextFill(Color.web("#4CAF50"));
+        sessionTypeLabel.setFont(Font.font("Arial", FontWeight.BOLD, StyleConstants.FONT_SIZE_SESSION_TYPE));
+        sessionTypeLabel.setTextFill(Color.web(StyleConstants.COLOR_WORK));
 
         timerLabel = new Label("25:00");
-        timerLabel.setFont(Font.font("Arial", FontWeight.BOLD, 72));
+        timerLabel.setFont(Font.font("Arial", FontWeight.BOLD, StyleConstants.FONT_SIZE_TIMER_LARGE));
         timerLabel.setTextFill(Color.WHITE);
 
         cycleIndicatorLabel = new Label("● ○ ○ ○");
-        cycleIndicatorLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
-        cycleIndicatorLabel.setTextFill(Color.web("#FFC107"));
+        cycleIndicatorLabel.setFont(Font.font("Arial", FontWeight.NORMAL, StyleConstants.FONT_SIZE_CYCLE));
+        cycleIndicatorLabel.setTextFill(Color.web(StyleConstants.COLOR_CYCLE));
 
         dailyCountLabel = new Label("Today's Pomodoros: 0");
-        dailyCountLabel.setFont(Font.font("Arial", FontWeight.BOLD, 18));
-        dailyCountLabel.setTextFill(Color.web("#2196F3"));
+        dailyCountLabel.setFont(Font.font("Arial", FontWeight.BOLD, StyleConstants.FONT_SIZE_DAILY_COUNT));
+        dailyCountLabel.setTextFill(Color.web(StyleConstants.COLOR_INFO));
     }
 
     private HBox createSpinnerBox() {
         Label minuteLabel = new Label("Minutes:");
         minuteLabel.setTextFill(Color.WHITE);
-        minuteLabel.setFont(Font.font("Arial", 16));
+        minuteLabel.setFont(Font.font("Arial", StyleConstants.FONT_SIZE_MINUTE_LABEL));
 
         minuteSpinner = new Spinner<>(1, 120, 25);
         minuteSpinner.setEditable(true);
-        minuteSpinner.setPrefWidth(100);
+        minuteSpinner.setPrefWidth(StyleConstants.SPINNER_WIDTH);
 
         HBox spinnerBox = new HBox(10);
         spinnerBox.setAlignment(Pos.CENTER);
@@ -174,19 +232,19 @@ public class TimerViewController {
 
     private HBox createControlButtons() {
         startButton = new Button("Start");
-        startButton.setPrefWidth(100);
-        startButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;");
+        startButton.setPrefWidth(StyleConstants.BUTTON_WIDTH);
+        startButton.setStyle(StyleConstants.BUTTON_START);
         startButton.setOnAction(e -> handleStart());
 
         pauseButton = new Button("Pause");
-        pauseButton.setPrefWidth(100);
-        pauseButton.setStyle("-fx-background-color: #FF9800; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;");
+        pauseButton.setPrefWidth(StyleConstants.BUTTON_WIDTH);
+        pauseButton.setStyle(StyleConstants.BUTTON_PAUSE);
         pauseButton.setOnAction(e -> handlePause());
         pauseButton.setDisable(true);
 
         resetButton = new Button("Reset");
-        resetButton.setPrefWidth(100);
-        resetButton.setStyle("-fx-background-color: #f44336; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;");
+        resetButton.setPrefWidth(StyleConstants.BUTTON_WIDTH);
+        resetButton.setStyle(StyleConstants.BUTTON_RESET);
         resetButton.setOnAction(e -> handleReset());
 
         HBox controlBox = new HBox(15);
@@ -202,23 +260,17 @@ public class TimerViewController {
         VBox root = new VBox(8);
         root.setPadding(new Insets(15));
         root.setAlignment(Pos.CENTER);
-        root.setStyle(
-            "-fx-background-color: rgba(43, 43, 43, 0.95);" +
-            "-fx-background-radius: 10;" +
-            "-fx-border-radius: 10;" +
-            "-fx-border-color: #4CAF50;" +
-            "-fx-border-width: 2;"
-        );
+        root.setStyle(StyleConstants.LAYOUT_COMPACT_MODE);
 
         // Compact timer label (medium size)
         compactTimerLabel = new Label("25:00");
-        compactTimerLabel.setFont(Font.font("Arial", FontWeight.BOLD, 48));
+        compactTimerLabel.setFont(Font.font("Arial", FontWeight.BOLD, StyleConstants.FONT_SIZE_TIMER_COMPACT));
         compactTimerLabel.setTextFill(Color.WHITE);
 
         // Compact info: cycle dots + pomodoro count
         compactInfoLabel = new Label("● ○ ○ ○  (0)");
-        compactInfoLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 14));
-        compactInfoLabel.setTextFill(Color.web("#FFC107"));
+        compactInfoLabel.setFont(Font.font("Arial", FontWeight.NORMAL, StyleConstants.FONT_SIZE_CYCLE_COMPACT));
+        compactInfoLabel.setTextFill(Color.web(StyleConstants.COLOR_CYCLE));
 
         // Make clickable to focus
         root.setOnMouseClicked(e -> {
@@ -227,24 +279,8 @@ public class TimerViewController {
         });
 
         // Add hover effect
-        root.setOnMouseEntered(e ->
-            root.setStyle(
-                "-fx-background-color: rgba(43, 43, 43, 0.98);" +
-                "-fx-background-radius: 10;" +
-                "-fx-border-radius: 10;" +
-                "-fx-border-color: #66BB6A;" +
-                "-fx-border-width: 3;"
-            )
-        );
-        root.setOnMouseExited(e ->
-            root.setStyle(
-                "-fx-background-color: rgba(43, 43, 43, 0.95);" +
-                "-fx-background-radius: 10;" +
-                "-fx-border-radius: 10;" +
-                "-fx-border-color: #4CAF50;" +
-                "-fx-border-width: 2;"
-            )
-        );
+        root.setOnMouseEntered(e -> root.setStyle(StyleConstants.LAYOUT_COMPACT_MODE_HOVER));
+        root.setOnMouseExited(e -> root.setStyle(StyleConstants.LAYOUT_COMPACT_MODE));
 
         root.getChildren().addAll(compactTimerLabel, compactInfoLabel);
 
@@ -423,5 +459,32 @@ public class TimerViewController {
             updateLoop.stop();
         }
         systemTrayAdapter.cleanup();
+    }
+
+    // ========== UIUpdatePort Implementation ==========
+
+    /**
+     * Called by the application service when a timer completes.
+     * Resets the UI controls to their initial state for the next session.
+     */
+    @Override
+    public void onTimerCompleted(SessionType completedType, SessionType nextType) {
+        log.info("Timer completed notification received: {} -> {}", completedType, nextType);
+
+        // Use Platform.runLater to ensure UI updates happen on JavaFX Application Thread
+        javafx.application.Platform.runLater(() -> {
+            // Reset button states
+            startButton.setDisable(false);
+            pauseButton.setDisable(true);
+            startButton.setText("Start");
+
+            // Re-enable spinner for next session
+            minuteSpinner.setDisable(false);
+
+            // Update spinner to show next session's default duration
+            minuteSpinner.getValueFactory().setValue(nextType.getDefaultMinutes());
+
+            log.debug("UI controls reset after timer completion");
+        });
     }
 }

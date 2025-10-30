@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import com.jabaddon.timer.application.port.in.GetTimerStateQuery;
@@ -15,6 +16,7 @@ import com.jabaddon.timer.application.port.out.NotificationPort;
 import com.jabaddon.timer.application.port.out.PersistencePort;
 import com.jabaddon.timer.application.port.out.TimerHistoryPort;
 import com.jabaddon.timer.application.port.out.TimerPort;
+import com.jabaddon.timer.application.port.out.UIPort;
 import com.jabaddon.timer.domain.model.Session;
 import com.jabaddon.timer.domain.model.SessionDomainEventHandler;
 import com.jabaddon.timer.domain.model.SessionType;
@@ -44,13 +46,15 @@ public class TimerApplicationService implements
     private final PersistencePort persistencePort;
     private final AnimationPort animationPort;
     private final TimerHistoryPort timerHistoryPort;
+    private final UIPort uiUpdatePort;
 
     public TimerApplicationService(
             TimerPort timerPort,
             NotificationPort notificationPort,
             PersistencePort persistencePort,
             AnimationPort animationPort,
-            TimerHistoryPort timerHistoryPort) {
+            TimerHistoryPort timerHistoryPort,
+            @Lazy UIPort uiUpdatePort) {
 
         // Initialize domain objects
         this.session = new Session(this);
@@ -61,6 +65,7 @@ public class TimerApplicationService implements
         this.persistencePort = persistencePort;
         this.animationPort = animationPort;
         this.timerHistoryPort = timerHistoryPort;
+        this.uiUpdatePort = uiUpdatePort;
 
         // Load today's statistics from history and initialize session
         int todayCompletedPomodoros = persistencePort.loadTodayStatistics().getCompletedPomodoros();
@@ -200,6 +205,9 @@ public class TimerApplicationService implements
 
         // Play celebration animation
         animationPort.playAnimation(AnimationPort.AnimationType.CELEBRATING);
+
+        // Notify UI to reset controls
+        uiUpdatePort.onTimerCompleted(currentType, nextType);
     }
 
     /**
