@@ -173,7 +173,8 @@ public class Session {
         return new TimerRecord(
                 timer.getStartedAt(),
                 finishedAt,
-                FinishReason.STOPPED,
+                wasTimerStarted() && wasTimerCompleted() ?
+                    FinishReason.COMPLETED : FinishReason.STOPPED,
                 timer.getSessionType(),
                 timer.getInitialDurationMinutes(),
                 "",    // Empty description for now

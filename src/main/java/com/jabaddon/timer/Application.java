@@ -59,6 +59,13 @@ public class Application extends javafx.application.Application {
     }
 
     public static void main(String[] args) {
+        // Explicitly set headless mode to false to enable system tray on macOS
+        System.setProperty("java.awt.headless", "false");
+
+        // Enable macOS-specific menu bar integration
+        System.setProperty("apple.laf.useScreenMenuBar", "true");
+        System.setProperty("apple.awt.application.name", "Pomodoro Timer");
+
         launch(args);
     }
 }

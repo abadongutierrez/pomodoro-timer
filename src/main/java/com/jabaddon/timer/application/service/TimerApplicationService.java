@@ -15,8 +15,6 @@ import com.jabaddon.timer.application.port.out.NotificationPort;
 import com.jabaddon.timer.application.port.out.PersistencePort;
 import com.jabaddon.timer.application.port.out.TimerHistoryPort;
 import com.jabaddon.timer.application.port.out.TimerPort;
-import com.jabaddon.timer.domain.model.DailyStatistics;
-import com.jabaddon.timer.domain.model.FinishReason;
 import com.jabaddon.timer.domain.model.Session;
 import com.jabaddon.timer.domain.model.SessionDomainEventHandler;
 import com.jabaddon.timer.domain.model.SessionType;
@@ -47,9 +45,6 @@ public class TimerApplicationService implements
     private final AnimationPort animationPort;
     private final TimerHistoryPort timerHistoryPort;
 
-    // Statistics management
-    private DailyStatistics dailyStatistics;
-
     public TimerApplicationService(
             TimerPort timerPort,
             NotificationPort notificationPort,
@@ -67,9 +62,9 @@ public class TimerApplicationService implements
         this.animationPort = animationPort;
         this.timerHistoryPort = timerHistoryPort;
 
-        // Load today's statistics
-        this.dailyStatistics = persistencePort.loadTodayStatistics();
-        this.session.setCompletedPomodoros(dailyStatistics.getCompletedPomodoros());
+        // Load today's statistics from history and initialize session
+        int todayCompletedPomodoros = persistencePort.loadTodayStatistics().getCompletedPomodoros();
+        this.session.setCompletedPomodoros(todayCompletedPomodoros);
     }
 
     // ========== StartTimerUseCase Implementation ==========
@@ -192,18 +187,13 @@ public class TimerApplicationService implements
 
         LocalDateTime finishedAt = LocalDateTime.now();
 
+        // TODO saving record should be a domain event
         if (session.wasTimerCompleted() || session.wasTimerStopped()) {
             TimerRecord record = session.createTimerRecord(finishedAt);
             timerHistoryPort.saveRecord(record);
         }
 
         SessionType nextType = session.handleTimerCompletion();
-
-        // Update daily statistics if work session completed
-        if (session.wasTimerCompleted() && currentType == SessionType.WORK) {
-            dailyStatistics.incrementPomodoros();
-            persistencePort.saveTodayStatistics(dailyStatistics);
-        }
 
         // Show notification
         notificationPort.showCompletionNotification(currentType, nextType);

@@ -19,9 +19,6 @@ public class AppConfiguration {
     @Value("${app.data.history-file}")
     private String historyFile;
 
-    @Value("${app.data.statistics-file}")
-    private String statisticsFile;
-
     @Value("${app.data.log-file}")
     private String logFile;
 
@@ -43,10 +40,6 @@ public class AppConfiguration {
 
     public String getHistoryFile() {
         return historyFile;
-    }
-
-    public String getStatisticsFile() {
-        return statisticsFile;
     }
 
     public String getLogFile() {
