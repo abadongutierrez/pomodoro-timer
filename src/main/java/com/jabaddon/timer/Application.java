@@ -1,30 +1,35 @@
 package com.jabaddon.timer;
 
 import com.jabaddon.timer.adapter.in.ui.TimerViewController;
-import com.jabaddon.timer.config.DependencyContainer;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 
 /**
- * JavaFX Application entry point.
- * Bootstraps hexagonal architecture by creating dependency container
- * and wiring up the UI controller.
+ * JavaFX Application entry point integrated with Spring Boot.
+ * Bootstraps Spring Boot context and hexagonal architecture with dependency injection.
  */
+@SpringBootApplication
 public class Application extends javafx.application.Application {
-    private DependencyContainer container;
+    private static ConfigurableApplicationContext springContext;
     private TimerViewController controller;
+
+    @Override
+    public void init() {
+        // Initialize Spring Boot context before JavaFX starts
+        springContext = SpringApplication.run(Application.class);
+    }
 
     @Override
     public void start(Stage primaryStage) {
         // Set UTILITY style to make window float across all macOS desktops/Spaces
         primaryStage.initStyle(StageStyle.UTILITY);
 
-        // Create dependency container (wires hexagonal architecture)
-        container = new DependencyContainer();
-
-        // Create UI controller with injected dependencies
-        controller = new TimerViewController(container);
+        // Get UI controller from Spring context (with all dependencies injected)
+        controller = springContext.getBean(TimerViewController.class);
         Scene scene = controller.createScene(primaryStage);
 
         primaryStage.setTitle("Pomodoro Timer");
@@ -39,13 +44,18 @@ public class Application extends javafx.application.Application {
         if (controller != null) {
             controller.shutdown();
         }
-        if (container != null) {
-            container.shutdown();
+        if (springContext != null) {
+            springContext.close();
         }
 
         // Force exit since we disabled implicit exit for system tray
         javafx.application.Platform.exit();
         System.exit(0);
+    }
+
+    @Override
+    public void stop() {
+        cleanup();
     }
 
     public static void main(String[] args) {

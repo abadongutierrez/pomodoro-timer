@@ -121,9 +121,10 @@ $RECYCLE.BIN/
 # JavaFX specific
 *.fxml.bak
 
-# Application data (Pomodoro timer stats)
-# Uncomment if you don't want to track user stats
-# .pomodoro-timer/
+# Application data (Pomodoro timer stats and history)
+# Uncomment if you don't want to track user stats and history
+# .pomodoro-timer/pomodoro-stats.properties
+# .pomodoro-timer/timer-history.json
 
 # Backup files from old architecture refactoring
 *.old/

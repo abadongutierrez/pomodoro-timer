@@ -1,5 +1,7 @@
 package com.jabaddon.timer.domain.model;
 
+import java.time.LocalDateTime;
+
 /**
  * Domain entity representing a Pomodoro session tracker.
  * Manages cycles, completed pomodoros, and session transitions.
@@ -11,11 +13,20 @@ public class Session {
     private int completedPomodoros;
     private int currentCycle;
     private SessionType currentSessionType;
+    private Timer timer;
+    private SessionDomainEventHandler eventHandler;
 
     public Session() {
         this.completedPomodoros = 0;
         this.currentCycle = 0;
         this.currentSessionType = SessionType.WORK;
+        this.timer = new Timer();
+        this.eventHandler = new NoOpSessionDomainEventHandler();
+    }
+
+    public Session(SessionDomainEventHandler customEventHandler) {
+        this();
+        this.eventHandler = customEventHandler;
     }
 
     /**
@@ -98,5 +109,127 @@ public class Session {
 
     public void setCurrentSessionType(SessionType currentSessionType) {
         this.currentSessionType = currentSessionType;
+    }
+
+    public boolean isTimerRunning() {
+        return timer.isRunning();
+    }
+
+    public boolean isTimerPaused() {
+        return timer.isPaused();
+    }
+
+    public boolean startSession() {
+        if (timer.isRunning()) {
+            return false;
+        }
+        SessionType sessionType = getCurrentSessionType();
+        int minutes = sessionType.getDefaultMinutes();
+        timer.setSessionType(sessionType);
+        timer.start(minutes);
+        eventHandler.onSessionStarted();
+        return true;
+    }
+
+    public boolean startCustomSession(int minutes) {
+        if (timer.isRunning()) {
+            return false;
+        }
+        SessionType sessionType = getCurrentSessionType();
+        timer.setSessionType(sessionType);
+        timer.start(minutes);
+        eventHandler.onCustomSessionStarted(minutes);
+        return true;
+    }
+
+    public void resetTimer() {
+        timer.stop();
+        reset();
+        timer.setSessionType(SessionType.WORK);
+    }
+
+    public boolean pauseTimer() {
+        if (timer.isRunning()) {
+            timer.pause();
+            return true;
+        }
+        return false;
+    }
+
+    public boolean resumeTimer() {
+        if (timer.isPaused()) {
+            timer.resume();
+            return true;
+        }
+        return false;
+    }
+
+    public boolean wasTimerStarted() {
+        // Placeholder for any logic needed when timer starts
+        return timer.getStartedAt() != null && timer.getInitialDurationMinutes() > 0;
+    }
+
+    public TimerRecord createTimerRecord(LocalDateTime finishedAt) {
+        return new TimerRecord(
+                timer.getStartedAt(),
+                finishedAt,
+                FinishReason.STOPPED,
+                timer.getSessionType(),
+                timer.getInitialDurationMinutes(),
+                "",    // Empty description for now
+                timer.getPauseRecords()  // Include all pause events
+        );
+    }
+
+    public boolean tick() {
+        return timer.tick();
+    }
+
+    public boolean wasTimerCompleted() {
+        return timer.isCompleted();
+    }
+
+    public boolean wasTimerStopped() {
+        return !timer.isRunning() && !timer.isCompleted() && timer.getStartedAt() != null;
+    }
+
+    public SessionType timerCurrentSessionType() {
+        return timer.getSessionType();
+    }
+
+    public SessionType handleTimerCompletion() {
+        SessionType completedType = timer.getSessionType();
+
+        if (completedType == SessionType.WORK) {
+            completeWorkSession();
+        }
+
+        // Transition to next session
+        transitionToNextSession();
+        SessionType nextType = getCurrentSessionType();
+
+        timer.setSessionType(nextType);
+
+        return nextType;
+    }
+
+    public TimerMemento createTimerMemento() {
+        return new TimerMemento(
+                timer.getSessionType(),
+                timer.getRemainingSeconds(),
+                LocalDateTime.now(),
+                timer.getState()
+        );
+    }
+
+    private class NoOpSessionDomainEventHandler implements SessionDomainEventHandler {
+
+        @Override
+        public void onSessionStarted() {
+        }
+
+        @Override
+        public void onCustomSessionStarted(int minutes) {
+        }
     }
 }

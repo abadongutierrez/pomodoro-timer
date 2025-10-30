@@ -1,21 +1,30 @@
 package com.jabaddon.timer.infrastructure.sound;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.sound.sampled.*;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 public class SoundManager {
+    private static final Logger log = LoggerFactory.getLogger(SoundManager.class);
     private static final int SAMPLE_RATE = 44100;
     private Clip tickClip;
     private Clip alarmClip;
-    private boolean soundEnabled = true;
+    private boolean soundEnabled;
 
     public SoundManager() {
+        this(true); // Default to sound enabled
+    }
+
+    public SoundManager(boolean soundEnabled) {
+        this.soundEnabled = soundEnabled;
         try {
             initializeSounds();
         } catch (Exception e) {
-            System.err.println("Failed to initialize sounds: " + e.getMessage());
-            soundEnabled = false;
+            log.error("Failed to initialize sounds: {}", e.getMessage(), e);
+            this.soundEnabled = false;
         }
     }
 

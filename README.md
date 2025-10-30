@@ -1,6 +1,6 @@
 # 🍅 Pomodoro Timer
 
-A professional macOS Pomodoro Timer built with JavaFX and **Hexagonal Architecture**.
+A Pomodoro Timer built with JavaFX and **Hexagonal Architecture**.
 
 ## ✨ Features
 
@@ -36,15 +36,6 @@ A professional macOS Pomodoro Timer built with JavaFX and **Hexagonal Architectu
 - Right-click menu for quick actions
 - Dark mode compatible
 
-### 🎨 Design
-- Modern dark theme UI
-- Smooth animations
-- Focus-aware view switching
-- Native macOS integration
-- Clean, minimal, professional
-
----
-
 ## 🏗️ Architecture
 
 This project uses **Hexagonal Architecture** (Ports & Adapters) for:
@@ -58,45 +49,14 @@ This project uses **Hexagonal Architecture** (Ports & Adapters) for:
 ```
 📦 timer-app
 ├── 🟢 domain/                  # Pure business logic
-│   ├── model/
-│   │   ├── Timer.java
-│   │   ├── Session.java
-│   │   ├── DailyStatistics.java
-│   │   └── SessionType.java
-│   └── service/
-│       └── SessionRules.java
-│
 ├── 🔵 application/             # Use cases & ports
-│   ├── port/in/               # Driving ports
-│   │   ├── StartTimerUseCase.java
-│   │   ├── PauseTimerUseCase.java
-│   │   ├── ResetTimerUseCase.java
-│   │   └── GetTimerStateQuery.java
-│   ├── port/out/              # Driven ports
-│   │   ├── TimerPort.java
-│   │   ├── NotificationPort.java
-│   │   ├── PersistencePort.java
-│   │   └── AnimationPort.java
-│   └── service/
-│       └── TimerApplicationService.java
+│   ├── port/in/                # Driving ports
+│   ├── port/out/               # Driven ports
+│   └── service/                # Port In Implementation
 │
 ├── 🟡 adapter/                 # Framework integration
-│   ├── in/ui/
-│   │   ├── TimerViewController.java
-│   │   └── ViewMode.java
-│   └── out/
-│       ├── timer/JavaFxTimerAdapter.java
-│       ├── notification/SoundNotificationAdapter.java
-│       ├── persistence/FileStatisticsAdapter.java
-│       ├── animation/JavaFxAnimationAdapter.java
-│       └── systemtray/SystemTrayAdapter.java
-│
 ├── ⚙️ infrastructure/          # Reusable components
-│   ├── sound/SoundManager.java
-│   └── animation/...
-│
 └── config/
-    └── DependencyContainer.java
 ```
 
 ---
@@ -106,7 +66,6 @@ This project uses **Hexagonal Architecture** (Ports & Adapters) for:
 ### Prerequisites
 - Java 21+
 - Maven 3.6+
-- macOS (for full menu bar integration)
 
 ### Build & Run
 
@@ -153,87 +112,15 @@ mvn package
 
 ## 📂 Data Storage
 
-Statistics are stored in:
-```
-~/.pomodoro-timer/pomodoro-stats.properties
-```
-
-Format:
-```properties
-date=2025-10-29
-count=8
-```
+WIP
 
 ---
-
-## 🧪 Testing
-
-The hexagonal architecture makes testing easy:
-
-```java
-// Mock the ports
-TimerPort mockTimer = mock(TimerPort.class);
-NotificationPort mockNotification = mock(NotificationPort.class);
-
-// Test the application service
-TimerApplicationService service = new TimerApplicationService(
-    mockTimer, mockNotification, ...
-);
-
-// No JavaFX needed!
-service.startSession();
-verify(mockTimer).startTicking(any());
-```
 
 ---
 
 ## 🔧 Configuration
 
-### Pomodoro Durations
-Edit `SessionType.java`:
-```java
-WORK(25, "Work Session"),        // 25 minutes
-SHORT_BREAK(5, "Short Break"),   // 5 minutes
-LONG_BREAK(15, "Long Break")     // 15 minutes
-```
-
-### Menu Bar Icon Size
-Edit `SystemTrayAdapter.java`:
-```java
-int width = 60;  // Icon width
-int height = 32; // Icon height
-Font font = new Font("SF Mono", Font.PLAIN, 22); // Font size
-```
-
-### Window Sizes
-Edit `TimerViewController.java`:
-```java
-// Full mode
-scene = new Scene(fullModeLayout, 600, 500);
-
-// Compact mode
-stage.setWidth(220);
-stage.setHeight(120);
-```
-
----
-
-## 🎯 Architecture Benefits
-
-### Testability
-- Domain layer: 100% framework-free
-- Unit tests without mocking JavaFX
-- Integration tests with mock adapters
-
-### Flexibility
-- **Swap UI**: Replace JavaFX with Swing/Web
-- **Swap Storage**: Replace files with database
-- **Swap Notifications**: Replace sound with push notifications
-
-### Maintainability
-- Clear boundaries between layers
-- Single Responsibility Principle
-- Easy to understand and modify
+WIP
 
 ---
 
@@ -243,26 +130,13 @@ This project is open source and available under the MIT License.
 
 ---
 
-## 🙏 Credits
-
-Built with:
-- [JavaFX 21](https://openjfx.io/) - UI framework
-- [Maven](https://maven.apache.org/) - Build tool
-- Hexagonal Architecture pattern
-- macOS System Tray API
-
----
-
 ## 🚧 Future Enhancements
 
-- [ ] Customizable session durations
-- [ ] Sound/notification preferences
-- [ ] Statistics dashboard
-- [ ] Export statistics
-- [ ] Keyboard shortcuts
-- [ ] Multiple timer presets
-- [ ] Cloud sync (optional)
+- [ ] Add AI
+- [ ] Add Blockchain
+- [ ] Add Bluetooth 
+
+j/k WIP
+
 
 ---
-
-Made with ❤️ and ☕ using the Pomodoro Technique

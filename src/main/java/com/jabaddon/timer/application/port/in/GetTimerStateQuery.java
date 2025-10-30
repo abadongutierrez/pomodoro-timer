@@ -19,7 +19,6 @@ public interface GetTimerStateQuery {
      */
     class TimerStateDTO {
         private final int remainingSeconds;
-        private final String formattedTime;
         private final TimerState state;
         private final SessionType sessionType;
         private final int completedPomodoros;
@@ -27,13 +26,11 @@ public interface GetTimerStateQuery {
 
         public TimerStateDTO(
                 int remainingSeconds,
-                String formattedTime,
                 TimerState state,
                 SessionType sessionType,
                 int completedPomodoros,
                 int currentCycle) {
             this.remainingSeconds = remainingSeconds;
-            this.formattedTime = formattedTime;
             this.state = state;
             this.sessionType = sessionType;
             this.completedPomodoros = completedPomodoros;
@@ -42,10 +39,6 @@ public interface GetTimerStateQuery {
 
         public int getRemainingSeconds() {
             return remainingSeconds;
-        }
-
-        public String getFormattedTime() {
-            return formattedTime;
         }
 
         public TimerState getState() {

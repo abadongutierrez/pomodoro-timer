@@ -1,10 +1,15 @@
 package com.jabaddon.timer.adapter.in.ui;
 
-import com.jabaddon.timer.adapter.out.animation.JavaFxAnimationAdapter;
-import com.jabaddon.timer.adapter.out.systemtray.SystemTrayAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
+
+import com.jabaddon.timer.adapter.out.systemtray.NoOpSystemTrayAdapter;
+import com.jabaddon.timer.adapter.out.systemtray.SystemTrayMacOsAdapter;
 import com.jabaddon.timer.application.port.in.GetTimerStateQuery;
+import com.jabaddon.timer.application.port.out.SystemTrayPort;
 import com.jabaddon.timer.application.service.TimerApplicationService;
-import com.jabaddon.timer.config.DependencyContainer;
 
 import javafx.animation.AnimationTimer;
 import javafx.geometry.Insets;
@@ -26,13 +31,16 @@ import javafx.stage.Stage;
  * - FULL mode: All controls visible when focused
  * - COMPACT mode: Timer-only when unfocused, floating on top
  */
+@Component
 public class TimerViewController {
+    private static final Logger log = LoggerFactory.getLogger(TimerViewController.class);
+
     // Application service (use cases)
     private final TimerApplicationService timerService;
-    private final JavaFxAnimationAdapter animationAdapter;
+    private final ApplicationContext applicationContext;
 
-    // System tray integration
-    private final SystemTrayAdapter systemTrayAdapter;
+    // System tray integration (OS-specific)
+    private final SystemTrayPort systemTrayAdapter;
 
     // Stage reference for dynamic resizing
     private Stage stage;
@@ -61,10 +69,26 @@ public class TimerViewController {
 
     private AnimationTimer updateLoop;
 
-    public TimerViewController(DependencyContainer container) {
-        this.timerService = container.getTimerService();
-        this.animationAdapter = container.getAnimationAdapter();
-        this.systemTrayAdapter = new SystemTrayAdapter();
+    public TimerViewController(TimerApplicationService timerService, ApplicationContext applicationContext) {
+        this.timerService = timerService;
+        this.applicationContext = applicationContext;
+
+        // Create OS-specific system tray adapter
+        this.systemTrayAdapter = createSystemTrayAdapter();
+    }
+
+    private static SystemTrayPort createSystemTrayAdapter() {
+        String osName = System.getProperty("os.name").toLowerCase();
+        boolean isMacOS = osName.contains("mac") || osName.contains("darwin");
+        log.info("Detected operating system: {}", osName);
+
+        if (isMacOS) {
+            log.info("Running on macOS - enabling system tray integration");
+            return new SystemTrayMacOsAdapter();
+        } else {
+            log.info("Running on {} - system tray disabled", osName);
+            return new NoOpSystemTrayAdapter();
+        }
     }
 
     public Scene createScene(Stage stage) {
@@ -269,19 +293,25 @@ public class TimerViewController {
     // ========== Event Handlers (Delegate to Application Service) ==========
 
     private void handleStart() {
-        // Delegate to application service
-        if (minuteSpinner.getValue() == 25) {
-            // Start standard session
-            timerService.startSession();
-        } else {
-            // Start custom timer
-            timerService.startCustomTimer(minuteSpinner.getValue());
-        }
+        GetTimerStateQuery.TimerStateDTO timerState = timerService.getCurrentState();
 
-        // Update UI state
-        startButton.setDisable(true);
-        pauseButton.setDisable(false);
-        minuteSpinner.setDisable(true);
+        if (timerState.isPaused()) {
+            timerService.resume();
+            startButton.setText("Start");
+            startButton.setDisable(true);
+            pauseButton.setDisable(false);
+        } else {
+            if (minuteSpinner.getValue() == timerState.getSessionType().getDefaultMinutes()) {
+                timerService.startNormalTimer();
+            } else {
+                timerService.startCustomTimer(minuteSpinner.getValue());
+            }
+
+            // Update UI state
+            startButton.setDisable(true);
+            pauseButton.setDisable(false);
+            minuteSpinner.setDisable(true);
+        }
     }
 
     private void handlePause() {
@@ -329,19 +359,25 @@ public class TimerViewController {
         GetTimerStateQuery.TimerStateDTO state = timerService.getCurrentState();
 
         // Update full mode UI
-        timerLabel.setText(state.getFormattedTime());
+        timerLabel.setText(getFormattedTime(state));
         sessionTypeLabel.setText(state.getSessionType().getDisplayName().toUpperCase());
         dailyCountLabel.setText("Today's Pomodoros: " + state.getCompletedPomodoros());
         cycleIndicatorLabel.setText(buildCycleIndicator(state.getCurrentCycle()));
 
         // Update compact mode UI
-        compactTimerLabel.setText(state.getFormattedTime());
+        compactTimerLabel.setText(getFormattedTime(state));
         compactInfoLabel.setText(
             buildCycleIndicator(state.getCurrentCycle()) + "  (" + state.getCompletedPomodoros() + ")"
         );
 
         // Update system tray
-        systemTrayAdapter.updateTimer(state.getFormattedTime());
+        systemTrayAdapter.updateTimer(getFormattedTime(state));
+    }
+
+    private String getFormattedTime(GetTimerStateQuery.TimerStateDTO state) {
+        int mins = state.getRemainingSeconds() / 60;
+        int secs = state.getRemainingSeconds() % 60;
+        return String.format("%02d:%02d", mins, secs);
     }
 
     private String buildCycleIndicator(int cycle) {

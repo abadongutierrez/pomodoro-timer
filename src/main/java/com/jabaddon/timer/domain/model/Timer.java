@@ -1,22 +1,38 @@
 package com.jabaddon.timer.domain.model;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Domain entity representing a countdown timer.
  * Contains pure business logic without any framework dependencies (no JavaFX properties).
  */
-public class Timer {
+class Timer {
     private int remainingSeconds;
+    private int initialDurationMinutes;
     private TimerState state;
     private SessionType sessionType;
+    private LocalDateTime startedAt;
+    private LocalDateTime stoppedAt;
+    private LocalDateTime currentPauseStartTime;
+    private List<PauseRecord> pauseRecords;
 
     public Timer() {
         this.remainingSeconds = 0;
+        this.initialDurationMinutes = 0;
         this.state = TimerState.IDLE;
         this.sessionType = SessionType.WORK;
+        this.startedAt = null;
+        this.stoppedAt = null;
+        this.currentPauseStartTime = null;
+        this.pauseRecords = new ArrayList<>();
     }
 
     /**
      * Starts the timer with the specified duration.
+     * Clears any previous history (pause records, stop time).
      * @param minutes Duration in minutes
      * @throws IllegalArgumentException if minutes <= 0
      * @throws IllegalStateException if timer is already running
@@ -29,11 +45,17 @@ public class Timer {
             throw new IllegalStateException("Timer is already running");
         }
         this.remainingSeconds = minutes * 60;
+        this.initialDurationMinutes = minutes;
         this.state = TimerState.RUNNING;
+        this.startedAt = LocalDateTime.now();
+
+        // Clear history from previous session
+        clearHistory();
     }
 
     /**
      * Pauses the timer, preserving remaining time.
+     * Records the pause start time for tracking.
      * @throws IllegalStateException if timer is not running
      */
     public void pause() {
@@ -41,10 +63,12 @@ public class Timer {
             throw new IllegalStateException("Timer is not running");
         }
         this.state = TimerState.PAUSED;
+        this.currentPauseStartTime = LocalDateTime.now();
     }
 
     /**
      * Resumes a paused timer.
+     * Records the pause duration for tracking.
      * @throws IllegalStateException if timer is not paused
      */
     public void resume() {
@@ -53,13 +77,31 @@ public class Timer {
         }
         if (remainingSeconds > 0) {
             this.state = TimerState.RUNNING;
+
+            // Record the pause event
+            if (currentPauseStartTime != null) {
+                pauseRecords.add(new PauseRecord(currentPauseStartTime, LocalDateTime.now()));
+                currentPauseStartTime = null;
+            }
         }
     }
 
     /**
      * Stops the timer and resets remaining time to zero.
+     * Records the stop time and handles any active pause.
      */
     public void stop() {
+        // Record stop time if timer was started
+        if (startedAt != null) {
+            this.stoppedAt = LocalDateTime.now();
+
+            // If there's an active pause, close it
+            if (currentPauseStartTime != null) {
+                pauseRecords.add(new PauseRecord(currentPauseStartTime, LocalDateTime.now()));
+                currentPauseStartTime = null;
+            }
+        }
+
         this.state = TimerState.IDLE;
         this.remainingSeconds = 0;
     }
@@ -96,15 +138,6 @@ public class Timer {
         return false;
     }
 
-    /**
-     * Gets formatted time as MM:SS string.
-     */
-    public String getFormattedTime() {
-        int mins = remainingSeconds / 60;
-        int secs = remainingSeconds % 60;
-        return String.format("%02d:%02d", mins, secs);
-    }
-
     // Getters
     public int getRemainingSeconds() {
         return remainingSeconds;
@@ -132,5 +165,31 @@ public class Timer {
 
     public void setSessionType(SessionType sessionType) {
         this.sessionType = sessionType;
+    }
+
+    public LocalDateTime getStartedAt() {
+        return startedAt;
+    }
+
+    public int getInitialDurationMinutes() {
+        return initialDurationMinutes;
+    }
+
+    public LocalDateTime getStoppedAt() {
+        return stoppedAt;
+    }
+
+    public List<PauseRecord> getPauseRecords() {
+        return Collections.unmodifiableList(pauseRecords);
+    }
+
+    /**
+     * Clears the pause records and resets stop time.
+     * Used when starting a new session.
+     */
+    public void clearHistory() {
+        this.pauseRecords.clear();
+        this.stoppedAt = null;
+        this.currentPauseStartTime = null;
     }
 }
