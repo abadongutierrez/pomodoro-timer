@@ -103,6 +103,15 @@ public class Session {
         return currentCycle;
     }
 
+    public void setCurrentCycle(int currentCycle) {
+        if (currentCycle < 0 || currentCycle >= POMODOROS_BEFORE_LONG_BREAK) {
+            throw new IllegalArgumentException(
+                "Current cycle must be between 0 and " + (POMODOROS_BEFORE_LONG_BREAK - 1)
+            );
+        }
+        this.currentCycle = currentCycle;
+    }
+
     public SessionType getCurrentSessionType() {
         return currentSessionType;
     }

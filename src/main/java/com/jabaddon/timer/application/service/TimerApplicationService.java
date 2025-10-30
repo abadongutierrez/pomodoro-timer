@@ -68,8 +68,11 @@ public class TimerApplicationService implements
         this.uiUpdatePort = uiUpdatePort;
 
         // Load today's statistics from history and initialize session
-        int todayCompletedPomodoros = persistencePort.loadTodayStatistics().getCompletedPomodoros();
-        this.session.setCompletedPomodoros(todayCompletedPomodoros);
+        var todayStats = persistencePort.loadTodayStatistics();
+        this.session.setCompletedPomodoros(todayStats.getCompletedPomodoros());
+        this.session.setCurrentCycle(todayStats.getCurrentCycle());
+        log.info("Restored session state: {} completed pomodoros, cycle: {}",
+            todayStats.getCompletedPomodoros(), todayStats.getCurrentCycle());
     }
 
     // ========== StartTimerUseCase Implementation ==========
