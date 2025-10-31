@@ -13,10 +13,12 @@ import com.jabaddon.pomodorotimer.application.port.out.UIPort;
 import com.jabaddon.pomodorotimer.application.service.TimerApplicationService;
 import com.jabaddon.pomodorotimer.domain.model.SessionType;
 
-import javafx.animation.AnimationTimer;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.util.Duration;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
@@ -71,7 +73,8 @@ public class TimerViewController implements UIPort {
     private Label compactTimerLabel;
     private Label compactInfoLabel;
 
-    private AnimationTimer updateLoop;
+    // UI update timeline
+    private Timeline updateTimeline;
 
     // ========== Style Constants ==========
 
@@ -382,13 +385,9 @@ public class TimerViewController implements UIPort {
      * Updates UI based on current state.
      */
     private void startUIUpdateLoop() {
-        updateLoop = new AnimationTimer() {
-            @Override
-            public void handle(long now) {
-                updateUI();
-            }
-        };
-        updateLoop.start();
+        updateTimeline = new Timeline(new KeyFrame(Duration.millis(100), e -> updateUI()));
+        updateTimeline.setCycleCount(Timeline.INDEFINITE);
+        updateTimeline.play();
     }
 
     private void updateUI() {
@@ -455,8 +454,8 @@ public class TimerViewController implements UIPort {
      * Cleanup method called when application closes.
      */
     public void shutdown() {
-        if (updateLoop != null) {
-            updateLoop.stop();
+        if (updateTimeline != null) {
+            updateTimeline.stop();
         }
         systemTrayAdapter.cleanup();
     }

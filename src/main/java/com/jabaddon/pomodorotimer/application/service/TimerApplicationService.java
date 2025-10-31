@@ -11,7 +11,6 @@ import com.jabaddon.pomodorotimer.application.port.in.GetTimerStateQuery;
 import com.jabaddon.pomodorotimer.application.port.in.PauseTimerUseCase;
 import com.jabaddon.pomodorotimer.application.port.in.ResetTimerUseCase;
 import com.jabaddon.pomodorotimer.application.port.in.StartTimerUseCase;
-import com.jabaddon.pomodorotimer.application.port.out.AnimationPort;
 import com.jabaddon.pomodorotimer.application.port.out.NotificationPort;
 import com.jabaddon.pomodorotimer.application.port.out.PersistencePort;
 import com.jabaddon.pomodorotimer.application.port.out.TimerHistoryPort;
@@ -44,7 +43,6 @@ public class TimerApplicationService implements
     private final TimerPort timerPort;
     private final NotificationPort notificationPort;
     private final PersistencePort persistencePort;
-    private final AnimationPort animationPort;
     private final TimerHistoryPort timerHistoryPort;
     private final UIPort uiUpdatePort;
 
@@ -52,7 +50,6 @@ public class TimerApplicationService implements
             TimerPort timerPort,
             NotificationPort notificationPort,
             PersistencePort persistencePort,
-            AnimationPort animationPort,
             TimerHistoryPort timerHistoryPort,
             @Lazy UIPort uiUpdatePort) {
 
@@ -63,7 +60,6 @@ public class TimerApplicationService implements
         this.timerPort = timerPort;
         this.notificationPort = notificationPort;
         this.persistencePort = persistencePort;
-        this.animationPort = animationPort;
         this.timerHistoryPort = timerHistoryPort;
         this.uiUpdatePort = uiUpdatePort;
 
@@ -88,7 +84,6 @@ public class TimerApplicationService implements
             session.getCurrentSessionType(),
             session.getCurrentSessionType().getDefaultMinutes());
         timerPort.startTicking(this::onTick);
-        updateAnimation();
     }
 
     @Override
@@ -102,7 +97,6 @@ public class TimerApplicationService implements
             session.getCurrentSessionType(),
             minutes);
         timerPort.startTicking(this::onTick);
-        updateAnimation();
     }
 
     // ========== PauseTimerUseCase Implementation ==========
@@ -112,7 +106,6 @@ public class TimerApplicationService implements
         if (session.pauseTimer()) {
             // this probably should be handled with domain events?
             timerPort.pauseTicking();
-            animationPort.playAnimation(AnimationPort.AnimationType.IDLE);
         }
     }
 
@@ -121,7 +114,6 @@ public class TimerApplicationService implements
         if (session.resumeTimer()) {
            // this probably should be handled with domain events?
             timerPort.resumeTicking();
-            updateAnimation();
         }
     }
 
@@ -136,7 +128,6 @@ public class TimerApplicationService implements
 
         session.resetTimer();
         timerPort.stopTicking();
-        animationPort.playAnimation(AnimationPort.AnimationType.IDLE);
     }
 
     @Override
@@ -148,7 +139,6 @@ public class TimerApplicationService implements
 
         session.resetTimer();
         timerPort.stopTicking();
-        animationPort.playAnimation(AnimationPort.AnimationType.IDLE);
     }
 
     // ========== GetTimerStateQuery Implementation ==========
@@ -206,9 +196,6 @@ public class TimerApplicationService implements
         // Show notification
         notificationPort.showCompletionNotification(currentType, nextType);
 
-        // Play celebration animation
-        animationPort.playAnimation(AnimationPort.AnimationType.CELEBRATING);
-
         // Notify UI to reset controls
         uiUpdatePort.onTimerCompleted(currentType, nextType);
     }
@@ -226,17 +213,6 @@ public class TimerApplicationService implements
         }
     }
 
-    /**
-     * Updates animation based on current session type.
-     */
-    private void updateAnimation() {
-        AnimationPort.AnimationType animationType = switch (session.timerCurrentSessionType()) {
-            case WORK -> AnimationPort.AnimationType.WORKING;
-            case SHORT_BREAK, LONG_BREAK -> AnimationPort.AnimationType.RESTING;
-        };
-        animationPort.playAnimation(animationType);
-    }
-
     // ========== Lifecycle Methods ==========
 
     /**
@@ -244,7 +220,6 @@ public class TimerApplicationService implements
      */
     public void shutdown() {
         timerPort.stopTicking();
-        animationPort.stopAnimation();
     }
 
     public Integer getNormalTimerSession() {
