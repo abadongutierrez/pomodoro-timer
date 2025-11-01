@@ -5,10 +5,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
-import com.jabaddon.pomodorotimer.adapter.out.systemtray.NoOpSystemTrayAdapter;
-import com.jabaddon.pomodorotimer.adapter.out.systemtray.SystemTrayMacOsAdapter;
+import com.jabaddon.pomodorotimer.adapter.in.ui.systemtray.MacOsSystemTrayManager;
+import com.jabaddon.pomodorotimer.adapter.in.ui.systemtray.NoOpSystemTrayManager;
+import com.jabaddon.pomodorotimer.adapter.in.ui.systemtray.SystemTrayManager;
 import com.jabaddon.pomodorotimer.application.port.in.GetTimerStateQuery;
-import com.jabaddon.pomodorotimer.application.port.out.SystemTrayPort;
 import com.jabaddon.pomodorotimer.application.port.out.UIPort;
 import com.jabaddon.pomodorotimer.application.service.TimerApplicationService;
 import com.jabaddon.pomodorotimer.domain.model.SessionType;
@@ -45,8 +45,8 @@ public class TimerViewController implements UIPort {
     private final TimerApplicationService timerService;
     private final ApplicationContext applicationContext;
 
-    // System tray integration (OS-specific)
-    private final SystemTrayPort systemTrayAdapter;
+    // System tray integration (OS-specific UI component)
+    private final SystemTrayManager systemTrayManager;
 
     // Stage reference for dynamic resizing
     private Stage stage;
@@ -134,21 +134,21 @@ public class TimerViewController implements UIPort {
         this.timerService = timerService;
         this.applicationContext = applicationContext;
 
-        // Create OS-specific system tray adapter
-        this.systemTrayAdapter = createSystemTrayAdapter();
+        // Create OS-specific system tray manager (UI component)
+        this.systemTrayManager = createSystemTrayManager();
     }
 
-    private static SystemTrayPort createSystemTrayAdapter() {
+    private static SystemTrayManager createSystemTrayManager() {
         String osName = System.getProperty("os.name").toLowerCase();
         boolean isMacOS = osName.contains("mac") || osName.contains("darwin");
         log.info("Detected operating system: {}", osName);
 
         if (isMacOS) {
             log.info("Running on macOS - enabling system tray integration");
-            return new SystemTrayMacOsAdapter();
+            return new MacOsSystemTrayManager();
         } else {
             log.info("Running on {} - system tray disabled", osName);
-            return new NoOpSystemTrayAdapter();
+            return new NoOpSystemTrayManager();
         }
     }
 
@@ -406,7 +406,7 @@ public class TimerViewController implements UIPort {
         );
 
         // Update system tray
-        systemTrayAdapter.updateTimer(getFormattedTime(state));
+        systemTrayManager.updateTimer(getFormattedTime(state));
     }
 
     private String getFormattedTime(GetTimerStateQuery.TimerStateDTO state) {
@@ -429,12 +429,12 @@ public class TimerViewController implements UIPort {
      * Initializes the system tray icon with menu bar integration.
      */
     private void initializeSystemTray() {
-        systemTrayAdapter.initialize(stage);
+        systemTrayManager.initialize(stage);
 
         // Wire up menu actions
-        systemTrayAdapter.setOnStartPauseAction(this::handlePause);
-        systemTrayAdapter.setOnResetAction(this::handleReset);
-        systemTrayAdapter.setOnShowHideAction(this::toggleWindowVisibility);
+        systemTrayManager.setOnStartPauseAction(this::handlePause);
+        systemTrayManager.setOnResetAction(this::handleReset);
+        systemTrayManager.setOnShowHideAction(this::toggleWindowVisibility);
     }
 
     /**
@@ -457,7 +457,7 @@ public class TimerViewController implements UIPort {
         if (updateTimeline != null) {
             updateTimeline.stop();
         }
-        systemTrayAdapter.cleanup();
+        systemTrayManager.cleanup();
     }
 
     // ========== UIPort Implementation ==========

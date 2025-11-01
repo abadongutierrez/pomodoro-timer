@@ -12,9 +12,8 @@ import com.jabaddon.pomodorotimer.application.port.in.PauseTimerUseCase;
 import com.jabaddon.pomodorotimer.application.port.in.ResetTimerUseCase;
 import com.jabaddon.pomodorotimer.application.port.in.StartTimerUseCase;
 import com.jabaddon.pomodorotimer.application.port.out.NotificationPort;
-import com.jabaddon.pomodorotimer.application.port.out.PersistencePort;
-import com.jabaddon.pomodorotimer.application.port.out.TimerHistoryPort;
-import com.jabaddon.pomodorotimer.application.port.out.TimerPort;
+import com.jabaddon.pomodorotimer.application.port.out.TimerPersistencePort;
+import com.jabaddon.pomodorotimer.application.port.out.TimerTicksSchedulerPort;
 import com.jabaddon.pomodorotimer.application.port.out.UIPort;
 import com.jabaddon.pomodorotimer.domain.model.Session;
 import com.jabaddon.pomodorotimer.domain.model.SessionDomainEventHandler;
@@ -40,17 +39,15 @@ public class TimerApplicationService implements
     private final Session session;
 
     // Driven ports (dependencies on external systems)
-    private final TimerPort timerPort;
+    private final TimerTicksSchedulerPort timerPort;
     private final NotificationPort notificationPort;
-    private final PersistencePort persistencePort;
-    private final TimerHistoryPort timerHistoryPort;
+    private final TimerPersistencePort timerHistoryPort;
     private final UIPort uiUpdatePort;
 
     public TimerApplicationService(
-            TimerPort timerPort,
+            TimerTicksSchedulerPort timerPort,
             NotificationPort notificationPort,
-            PersistencePort persistencePort,
-            TimerHistoryPort timerHistoryPort,
+            TimerPersistencePort timerHistoryPort,
             @Lazy UIPort uiUpdatePort) {
 
         // Initialize domain objects
@@ -59,12 +56,11 @@ public class TimerApplicationService implements
         // Store port references
         this.timerPort = timerPort;
         this.notificationPort = notificationPort;
-        this.persistencePort = persistencePort;
         this.timerHistoryPort = timerHistoryPort;
         this.uiUpdatePort = uiUpdatePort;
 
         // Load today's statistics from history and initialize session
-        var todayStats = persistencePort.loadTodayStatistics();
+        var todayStats = timerHistoryPort.loadTodayStatistics();
         this.session.setCompletedPomodoros(todayStats.getCompletedPomodoros());
         this.session.setCurrentCycle(todayStats.getCurrentCycle());
         log.info("Restored session state: {} completed pomodoros, cycle: {}",

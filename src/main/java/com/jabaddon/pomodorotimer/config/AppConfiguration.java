@@ -1,10 +1,10 @@
-package com.jabaddon.pomodorotimer.infrastructure.config;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
+package com.jabaddon.pomodorotimer.config;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 
 /**
  * Application configuration properties.
