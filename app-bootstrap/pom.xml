@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.jabaddon.apps</groupId>
+        <artifactId>pomodoro-timer</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>pomodoro-timer-app-bootstrap</artifactId>
+    <packaging>jar</packaging>
+
+    <name>Pomodoro Timer - Bootstrap</name>
+    <description>Application bootstrap with Spring Boot and JavaFX launcher</description>
+
+    <dependencies>
+        <!-- Core module -->
+        <dependency>
+            <groupId>com.jabaddon.apps</groupId>
+            <artifactId>pomodoro-timer-core</artifactId>
+        </dependency>
+
+        <!-- All adapters -->
+        <dependency>
+            <groupId>com.jabaddon.apps</groupId>
+            <artifactId>pomodoro-timer-adapter-in-ui-javafx</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.jabaddon.apps</groupId>
+            <artifactId>pomodoro-timer-adapter-out-persistence-file</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.jabaddon.apps</groupId>
+            <artifactId>pomodoro-timer-adapter-out-notification-javafx</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.jabaddon.apps</groupId>
+            <artifactId>pomodoro-timer-adapter-out-timerticksscheduler-javafx</artifactId>
+        </dependency>
+
+        <!-- Spring Boot -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+
+        <!-- JavaFX -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+        </dependency>
+
+        <!-- Test dependencies -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>com.jabaddon.pomodorotimer.Application</mainClass>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>com.jabaddon.pomodorotimer.Application</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
