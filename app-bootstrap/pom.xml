@@ -23,13 +23,10 @@
         </dependency>
 
         <!-- All adapters -->
+        <!-- JavaFX UI adapters -->
         <dependency>
             <groupId>com.jabaddon.apps</groupId>
             <artifactId>pomodoro-timer-adapter-in-ui-javafx</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.jabaddon.apps</groupId>
-            <artifactId>pomodoro-timer-adapter-out-persistence-file</artifactId>
         </dependency>
         <dependency>
             <groupId>com.jabaddon.apps</groupId>
@@ -38,6 +35,26 @@
         <dependency>
             <groupId>com.jabaddon.apps</groupId>
             <artifactId>pomodoro-timer-adapter-out-timerticksscheduler-javafx</artifactId>
+        </dependency>
+
+        <!-- Spring Shell UI adapters -->
+        <dependency>
+            <groupId>com.jabaddon.apps</groupId>
+            <artifactId>pomodoro-timer-adapter-in-ui-spring-shell</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.jabaddon.apps</groupId>
+            <artifactId>pomodoro-timer-adapter-out-notification-shell</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.jabaddon.apps</groupId>
+            <artifactId>pomodoro-timer-adapter-out-timerticksscheduler-java</artifactId>
+        </dependency>
+
+        <!-- Shared adapters -->
+        <dependency>
+            <groupId>com.jabaddon.apps</groupId>
+            <artifactId>pomodoro-timer-adapter-out-persistence-file</artifactId>
         </dependency>
 
         <!-- Spring Boot -->
@@ -66,14 +83,21 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.jabaddon.pomodorotimer.Application</mainClass>
+                    <mainClass>com.jabaddon.pomodorotimer.PomodoroTimerApplication</mainClass>
                 </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.jabaddon.pomodorotimer.Application</mainClass>
+                    <mainClass>com.jabaddon.pomodorotimer.PomodoroTimerApplication</mainClass>
                 </configuration>
             </plugin>
         </plugins>

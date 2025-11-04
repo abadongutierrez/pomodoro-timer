@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.jabaddon.apps</groupId>
+        <artifactId>pomodoro-timer-adapter</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>pomodoro-timer-adapter-out-timerticksscheduler-java</artifactId>
+    <packaging>jar</packaging>
+
+    <name>Pomodoro Timer - Time Ticks Scheduler Java Adapter (Out)</name>
+    <description>ScheduledExecutorService-based timer scheduler (driven adapter)</description>
+
+    <dependencies>
+        <!-- Core module (ports and domain) -->
+        <dependency>
+            <groupId>com.jabaddon.apps</groupId>
+            <artifactId>pomodoro-timer-core</artifactId>
+        </dependency>
+
+        <!-- Spring Boot -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+
+        <!-- Logging -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+    </dependencies>
+</project>

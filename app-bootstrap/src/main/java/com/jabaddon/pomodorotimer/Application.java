@@ -6,31 +6,34 @@ import javafx.stage.StageStyle;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.stereotype.Component;
 
 import com.jabaddon.pomodorotimer.adapter.in.ui.TimerViewController;
 
-@SpringBootApplication
-@ComponentScan(basePackages = {
-    "com.jabaddon.pomodorotimer.config",
-    "com.jabaddon.pomodorotimer.adapter.out.timerpersistence",
-    "com.jabaddon.pomodorotimer.adapter.out.timerticksscheduler",
-    "com.jabaddon.pomodorotimer.adapter.out.notification",
-    "com.jabaddon.pomodorotimer.adapter.in.ui"
-})
+/**
+ * JavaFX Application class.
+ * This is launched by PomodoroTimerApplication when javafx profile is active.
+ * The Spring context is passed in and managed by PomodoroTimerApplication.
+ */
 public class Application extends javafx.application.Application {
     private static final Logger log = LoggerFactory.getLogger(Application.class);
     private static ConfigurableApplicationContext springContext;
     private TimerViewController controller;
 
+    /**
+     * Sets the Spring context to be used by this JavaFX application.
+     * Called by PomodoroTimerApplication before launching JavaFX.
+     */
+    public static void setSpringContext(ConfigurableApplicationContext context) {
+        springContext = context;
+    }
+
     @Override
     public void init() {
-        // Initialize Spring Boot context before JavaFX starts
-        springContext = SpringApplication.run(Application.class);
+        // Spring context is set by PomodoroTimerApplication before launch
+        if (springContext == null) {
+            throw new IllegalStateException("Spring context not set. Call Application.setSpringContext() before launching.");
+        }
     }
 
     @Override
@@ -69,16 +72,5 @@ public class Application extends javafx.application.Application {
     @Override
     public void stop() {
         cleanup();
-    }
-
-    public static void main(String[] args) {
-        // Explicitly set headless mode to false to enable system tray on macOS
-        System.setProperty("java.awt.headless", "false");
-
-        // Enable macOS-specific menu bar integration
-        System.setProperty("apple.laf.useScreenMenuBar", "true");
-        System.setProperty("apple.awt.application.name", "Pomodoro Timer");
-
-        launch(args);
     }
 }

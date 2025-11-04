@@ -17,8 +17,11 @@
 
     <modules>
         <module>adapter-in-ui-javafx</module>
+        <module>adapter-in-ui-spring-shell</module>
         <module>adapter-out-persistence-file</module>
         <module>adapter-out-notification-javafx</module>
+        <module>adapter-out-notification-shell</module>
         <module>adapter-out-timerticksscheduler-javafx</module>
+        <module>adapter-out-timerticksscheduler-java</module>
     </modules>
 </project>

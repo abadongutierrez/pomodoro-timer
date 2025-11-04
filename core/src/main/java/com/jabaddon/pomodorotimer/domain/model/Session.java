@@ -204,8 +204,6 @@ public class Session {
         transitionToNextSession();
         SessionType nextType = getCurrentSessionType();
 
-        timer.setSessionType(nextType);
-
         return nextType;
     }
 

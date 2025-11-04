@@ -20,6 +20,7 @@
 
         <!-- Dependency versions -->
         <spring.boot.version>3.2.1</spring.boot.version>
+        <spring.shell.version>3.2.0</spring.shell.version>
         <javafx.version>21.0.1</javafx.version>
         <jackson.version>2.16.0</jackson.version>
         <junit.version>5.10.2</junit.version>
@@ -68,6 +69,28 @@
                 <groupId>com.jabaddon.apps</groupId>
                 <artifactId>pomodoro-timer-adapter-out-timerticksscheduler-javafx</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jabaddon.apps</groupId>
+                <artifactId>pomodoro-timer-adapter-in-ui-spring-shell</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jabaddon.apps</groupId>
+                <artifactId>pomodoro-timer-adapter-out-notification-shell</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jabaddon.apps</groupId>
+                <artifactId>pomodoro-timer-adapter-out-timerticksscheduler-java</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- Spring Shell -->
+            <dependency>
+                <groupId>org.springframework.shell</groupId>
+                <artifactId>spring-shell-starter</artifactId>
+                <version>${spring.shell.version}</version>
             </dependency>
 
             <!-- JavaFX -->
@@ -128,6 +151,9 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.11.0</version>
+                    <configuration>
+                        <parameters>true</parameters>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>

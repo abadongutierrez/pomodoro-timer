@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.jabaddon.apps</groupId>
+        <artifactId>pomodoro-timer-adapter</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>pomodoro-timer-adapter-in-ui-spring-shell</artifactId>
+    <packaging>jar</packaging>
+
+    <name>Pomodoro Timer - Spring Shell UI Adapter (In)</name>
+    <description>Spring Shell command-line interface (driving adapter)</description>
+
+    <dependencies>
+        <!-- Core module (ports and domain) -->
+        <dependency>
+            <groupId>com.jabaddon.apps</groupId>
+            <artifactId>pomodoro-timer-core</artifactId>
+        </dependency>
+
+        <!-- Spring Shell -->
+        <dependency>
+            <groupId>org.springframework.shell</groupId>
+            <artifactId>spring-shell-starter</artifactId>
+        </dependency>
+
+        <!-- Spring Boot -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+
+        <!-- Logging -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+
+        <!-- Lanterna for TUI -->
+        <dependency>
+            <groupId>com.googlecode.lanterna</groupId>
+            <artifactId>lanterna</artifactId>
+            <version>3.1.2</version>
+        </dependency>
+    </dependencies>
+</project>

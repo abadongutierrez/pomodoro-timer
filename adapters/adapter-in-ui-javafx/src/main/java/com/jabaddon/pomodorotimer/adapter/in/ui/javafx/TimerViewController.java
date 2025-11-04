@@ -3,6 +3,7 @@ package com.jabaddon.pomodorotimer.adapter.in.ui;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import com.jabaddon.pomodorotimer.adapter.in.ui.systemtray.MacOsSystemTrayManager;
@@ -36,8 +37,10 @@ import javafx.stage.Stage;
  * - COMPACT mode: Timer-only when unfocused, floating on top
  *
  * Implements UIUpdatePort to receive notifications from the application service.
+ * Active when javafx profile is enabled.
  */
 @Component
+@Profile("javafx")
 public class TimerViewController implements UIPort {
     private static final Logger log = LoggerFactory.getLogger(TimerViewController.class);
 

@@ -19,7 +19,7 @@ class Timer {
     private LocalDateTime currentPauseStartTime;
     private List<PauseRecord> pauseRecords;
 
-    public Timer() {
+    Timer() {
         this.remainingSeconds = 0;
         this.initialDurationMinutes = 0;
         this.state = TimerState.IDLE;
@@ -37,7 +37,7 @@ class Timer {
      * @throws IllegalArgumentException if minutes <= 0
      * @throws IllegalStateException if timer is already running
      */
-    public void start(int minutes) {
+    void start(int minutes) {
         if (minutes <= 0) {
             throw new IllegalArgumentException("Minutes must be greater than 0");
         }
@@ -58,7 +58,7 @@ class Timer {
      * Records the pause start time for tracking.
      * @throws IllegalStateException if timer is not running
      */
-    public void pause() {
+    void pause() {
         if (state != TimerState.RUNNING) {
             throw new IllegalStateException("Timer is not running");
         }
@@ -71,7 +71,7 @@ class Timer {
      * Records the pause duration for tracking.
      * @throws IllegalStateException if timer is not paused
      */
-    public void resume() {
+    void resume() {
         if (state != TimerState.PAUSED) {
             throw new IllegalStateException("Timer is not paused");
         }
@@ -90,7 +90,7 @@ class Timer {
      * Stops the timer and resets remaining time to zero.
      * Records the stop time and handles any active pause.
      */
-    public void stop() {
+    void stop() {
         // Record stop time if timer was started
         if (startedAt != null) {
             this.stoppedAt = LocalDateTime.now();
@@ -110,7 +110,7 @@ class Timer {
      * Resets the timer to the specified duration without starting it.
      * @param minutes Duration in minutes
      */
-    public void reset(int minutes) {
+    void reset(int minutes) {
         if (minutes <= 0) {
             throw new IllegalArgumentException("Minutes must be greater than 0");
         }
@@ -123,7 +123,7 @@ class Timer {
      * This should be called by the infrastructure layer (ticker).
      * @return true if timer completed (reached zero), false otherwise
      */
-    public boolean tick() {
+    boolean tick() {
         if (state != TimerState.RUNNING) {
             return false;
         }
@@ -139,47 +139,47 @@ class Timer {
     }
 
     // Getters
-    public int getRemainingSeconds() {
+    int getRemainingSeconds() {
         return remainingSeconds;
     }
 
-    public TimerState getState() {
+    TimerState getState() {
         return state;
     }
 
-    public boolean isRunning() {
+    boolean isRunning() {
         return state == TimerState.RUNNING;
     }
 
-    public boolean isPaused() {
+    boolean isPaused() {
         return state == TimerState.PAUSED;
     }
 
-    public boolean isCompleted() {
+    boolean isCompleted() {
         return state == TimerState.COMPLETED;
     }
 
-    public SessionType getSessionType() {
+    SessionType getSessionType() {
         return sessionType;
     }
 
-    public void setSessionType(SessionType sessionType) {
+    void setSessionType(SessionType sessionType) {
         this.sessionType = sessionType;
     }
 
-    public LocalDateTime getStartedAt() {
+    LocalDateTime getStartedAt() {
         return startedAt;
     }
 
-    public int getInitialDurationMinutes() {
+    int getInitialDurationMinutes() {
         return initialDurationMinutes;
     }
 
-    public LocalDateTime getStoppedAt() {
+    LocalDateTime getStoppedAt() {
         return stoppedAt;
     }
 
-    public List<PauseRecord> getPauseRecords() {
+    List<PauseRecord> getPauseRecords() {
         return Collections.unmodifiableList(pauseRecords);
     }
 
@@ -187,7 +187,7 @@ class Timer {
      * Clears the pause records and resets stop time.
      * Used when starting a new session.
      */
-    public void clearHistory() {
+    void clearHistory() {
         this.pauseRecords.clear();
         this.stoppedAt = null;
         this.currentPauseStartTime = null;
