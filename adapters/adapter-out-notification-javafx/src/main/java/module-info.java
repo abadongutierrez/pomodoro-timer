@@ -31,6 +31,7 @@ module com.jabaddon.pomodorotimer.adapter.notification.javafx {
 
     // Logging
     requires org.slf4j;
+    requires javafx.graphics;
 
     // Open packages to Spring for component scanning and dependency injection
     opens com.jabaddon.pomodorotimer.adapter.out.notification.javafx;

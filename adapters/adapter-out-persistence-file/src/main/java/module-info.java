@@ -27,6 +27,7 @@ module com.jabaddon.pomodorotimer.adapter.persistence.file {
 
     // Logging
     requires org.slf4j;
+    requires com.fasterxml.jackson.core;
 
     // Open packages to Spring for component scanning and dependency injection
     opens com.jabaddon.pomodorotimer.adapter.out.timerpersistence.file;

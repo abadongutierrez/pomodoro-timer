@@ -51,7 +51,7 @@ replay_pid*
 *.iml
 *.iws
 *.ipr
-out/
+/out/
 .idea_modules/
 
 # IDE - Eclipse
