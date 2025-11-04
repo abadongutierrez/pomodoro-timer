@@ -86,7 +86,7 @@ type `help` to see other commands
 
 ## 📂 Data Storage
 
-- Stats are saved in `~/.pomodoro-timer/stats.json`
+- History is saved in `~/.pomodoro-timer/timer-history.json`
 - Create the directory if it doesn't exist
 
 ---
