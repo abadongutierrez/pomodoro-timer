@@ -7,9 +7,9 @@ import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.screen.TerminalScreen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.Terminal;
+import com.jabaddon.pomodorotimer.application.dto.SessionTypeDTO;
+import com.jabaddon.pomodorotimer.application.dto.TimerStateDTO;
 import com.jabaddon.pomodorotimer.application.port.in.GetTimerStateQuery;
-import com.jabaddon.pomodorotimer.domain.model.SessionType;
-import com.jabaddon.pomodorotimer.domain.model.TimerState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,7 +93,7 @@ public class TimerWatchMode {
 
     private void updateDisplay(Screen screen) {
         try {
-            GetTimerStateQuery.TimerStateDTO state = uiAdapter.getCurrentState();
+            GetTimerStateQuery.TimerCurrentStateDTO state = uiAdapter.getCurrentState();
             
             screen.clear();
             TextGraphics textGraphics = screen.newTextGraphics();
@@ -106,7 +106,7 @@ public class TimerWatchMode {
         }
     }
 
-    private void printTimerDisplay(GetTimerStateQuery.TimerStateDTO state, TextGraphics textGraphics) {
+    private void printTimerDisplay(GetTimerStateQuery.TimerCurrentStateDTO state, TextGraphics textGraphics) {
         int startRow = 2;
         int startCol = 2;
         
@@ -154,23 +154,19 @@ public class TimerWatchMode {
         return sb.toString();
     }
 
-    private String getSessionName(SessionType type) {
-        return switch (type) {
-            case WORK -> "Work Session";
-            case SHORT_BREAK -> "Short Break";
-            case LONG_BREAK -> "Long Break";
-        };
+    private String getSessionName(SessionTypeDTO type) {
+        return type.displayName();
     }
 
-    private String getSessionEmoji(SessionType type) {
-        return switch (type) {
+    private String getSessionEmoji(SessionTypeDTO type) {
+        return switch (type.sessionType()) {
             case WORK -> "🍅";
             case SHORT_BREAK -> "☕";
             case LONG_BREAK -> "🌴";
         };
     }
 
-    private String getStateIcon(TimerState state) {
+    private String getStateIcon(TimerStateDTO state) {
         return switch (state) {
             case RUNNING -> "▶";
             case PAUSED -> "⏸";
@@ -180,7 +176,7 @@ public class TimerWatchMode {
         };
     }
 
-    private String getStateText(TimerState state) {
+    private String getStateText(TimerStateDTO state) {
         return switch (state) {
             case RUNNING -> "Running";
             case PAUSED -> "Paused";

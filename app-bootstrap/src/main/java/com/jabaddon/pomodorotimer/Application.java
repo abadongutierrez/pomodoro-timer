@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 
-import com.jabaddon.pomodorotimer.adapter.in.ui.TimerViewController;
+import com.jabaddon.pomodorotimer.adapter.in.ui.javafx.TimerViewController;
 
 /**
  * JavaFX Application class.

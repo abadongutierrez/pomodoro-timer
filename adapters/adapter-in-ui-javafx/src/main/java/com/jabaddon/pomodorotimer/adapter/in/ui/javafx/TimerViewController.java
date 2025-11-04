@@ -1,18 +1,18 @@
-package com.jabaddon.pomodorotimer.adapter.in.ui;
+package com.jabaddon.pomodorotimer.adapter.in.ui.javafx;
 
+import com.jabaddon.pomodorotimer.application.service.TimerApplicationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import com.jabaddon.pomodorotimer.adapter.in.ui.systemtray.MacOsSystemTrayManager;
-import com.jabaddon.pomodorotimer.adapter.in.ui.systemtray.NoOpSystemTrayManager;
-import com.jabaddon.pomodorotimer.adapter.in.ui.systemtray.SystemTrayManager;
+import com.jabaddon.pomodorotimer.adapter.in.ui.javafx.systemtray.MacOsSystemTrayManager;
+import com.jabaddon.pomodorotimer.adapter.in.ui.javafx.systemtray.NoOpSystemTrayManager;
+import com.jabaddon.pomodorotimer.adapter.in.ui.javafx.systemtray.SystemTrayManager;
 import com.jabaddon.pomodorotimer.application.dto.SessionTypeDTO;
 import com.jabaddon.pomodorotimer.application.port.in.GetTimerStateQuery;
 import com.jabaddon.pomodorotimer.application.port.out.UIPort;
-import com.jabaddon.pomodorotimer.application.service.TimerApplicationService;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -335,7 +335,7 @@ public class TimerViewController implements UIPort {
     // ========== Event Handlers (Delegate to Application Service) ==========
 
     private void handleStart() {
-        GetTimerStateQuery.TimerStateDTO timerState = timerService.getCurrentState();
+        GetTimerStateQuery.TimerCurrentStateDTO timerState = timerService.getCurrentState();
 
         if (timerState.isPaused()) {
             timerService.resume();
@@ -343,7 +343,7 @@ public class TimerViewController implements UIPort {
             startButton.setDisable(true);
             pauseButton.setDisable(false);
         } else {
-            if (minuteSpinner.getValue() == timerState.getSessionType().getDefaultMinutes()) {
+            if (minuteSpinner.getValue() == timerState.getSessionType().defaultMinutes()) {
                 timerService.startNormalTimer();
             } else {
                 timerService.startCustomTimer(minuteSpinner.getValue());
@@ -357,7 +357,7 @@ public class TimerViewController implements UIPort {
     }
 
     private void handlePause() {
-        GetTimerStateQuery.TimerStateDTO state = timerService.getCurrentState();
+        GetTimerStateQuery.TimerCurrentStateDTO state = timerService.getCurrentState();
 
         if (state.isRunning()) {
             timerService.pause();
@@ -394,11 +394,11 @@ public class TimerViewController implements UIPort {
     }
 
     private void updateUI() {
-        GetTimerStateQuery.TimerStateDTO state = timerService.getCurrentState();
+        GetTimerStateQuery.TimerCurrentStateDTO state = timerService.getCurrentState();
 
         // Update full mode UI
         timerLabel.setText(getFormattedTime(state));
-        sessionTypeLabel.setText(state.getSessionType().getDisplayName().toUpperCase());
+        sessionTypeLabel.setText(state.getSessionType().displayName().toUpperCase());
         dailyCountLabel.setText("Today's Pomodoros: " + state.getCompletedPomodoros());
         cycleIndicatorLabel.setText(buildCycleIndicator(state.getCurrentCycle()));
 
@@ -412,7 +412,7 @@ public class TimerViewController implements UIPort {
         systemTrayManager.updateTimer(getFormattedTime(state));
     }
 
-    private String getFormattedTime(GetTimerStateQuery.TimerStateDTO state) {
+    private String getFormattedTime(GetTimerStateQuery.TimerCurrentStateDTO state) {
         int mins = state.getRemainingSeconds() / 60;
         int secs = state.getRemainingSeconds() % 60;
         return String.format("%02d:%02d", mins, secs);
@@ -496,7 +496,7 @@ public class TimerViewController implements UIPort {
      * Helper method to get default minutes for a session type DTO.
      */
     private int getDefaultMinutesForSessionType(SessionTypeDTO sessionType) {
-        return switch (sessionType) {
+        return switch (sessionType.sessionType()) {
             case WORK -> 25;
             case SHORT_BREAK -> 5;
             case LONG_BREAK -> 15;

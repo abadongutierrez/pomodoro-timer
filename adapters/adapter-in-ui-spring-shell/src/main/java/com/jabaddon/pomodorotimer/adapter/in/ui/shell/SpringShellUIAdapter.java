@@ -27,7 +27,7 @@ public class SpringShellUIAdapter implements UIPort {
     private static final Logger logger = LoggerFactory.getLogger(SpringShellUIAdapter.class);
 
     private final GetTimerStateQuery stateQuery;
-    private volatile GetTimerStateQuery.TimerStateDTO currentState;
+    private volatile GetTimerStateQuery.TimerCurrentStateDTO currentState;
     private ScheduledExecutorService statePollingExecutor;
 
     @Autowired
@@ -90,13 +90,13 @@ public class SpringShellUIAdapter implements UIPort {
      * Gets the current timer state.
      * This is called by commands and watch mode to display state.
      */
-    public GetTimerStateQuery.TimerStateDTO getCurrentState() {
+    public GetTimerStateQuery.TimerCurrentStateDTO getCurrentState() {
         updateState();
         return currentState;
     }
 
     private String getDisplayName(SessionTypeDTO sessionType) {
-        return switch (sessionType) {
+        return switch (sessionType.sessionType()) {
             case WORK -> "Work Session";
             case SHORT_BREAK -> "Short Break";
             case LONG_BREAK -> "Long Break";
@@ -104,7 +104,7 @@ public class SpringShellUIAdapter implements UIPort {
     }
 
     private String getEmoji(SessionTypeDTO sessionType) {
-        return switch (sessionType) {
+        return switch (sessionType.sessionType()) {
             case WORK -> "🍅";
             case SHORT_BREAK -> "☕";
             case LONG_BREAK -> "🌴";

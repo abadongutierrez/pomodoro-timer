@@ -1,4 +1,4 @@
-package com.jabaddon.pomodorotimer.adapter.in.ui.systemtray;
+package com.jabaddon.pomodorotimer.adapter.in.ui.javafx.systemtray;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

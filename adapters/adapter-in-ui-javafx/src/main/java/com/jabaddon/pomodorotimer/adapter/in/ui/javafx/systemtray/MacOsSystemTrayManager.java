@@ -1,4 +1,4 @@
-package com.jabaddon.pomodorotimer.adapter.in.ui.systemtray;
+package com.jabaddon.pomodorotimer.adapter.in.ui.javafx.systemtray;
 
 import java.awt.AWTException;
 import java.awt.Font;

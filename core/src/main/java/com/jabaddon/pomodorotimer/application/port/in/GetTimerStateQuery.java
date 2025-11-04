@@ -1,7 +1,7 @@
 package com.jabaddon.pomodorotimer.application.port.in;
 
-import com.jabaddon.pomodorotimer.domain.model.SessionType;
-import com.jabaddon.pomodorotimer.domain.model.TimerState;
+import com.jabaddon.pomodorotimer.application.dto.SessionTypeDTO;
+import com.jabaddon.pomodorotimer.application.dto.TimerStateDTO;
 
 /**
  * Driving port (input): Query for retrieving current timer state.
@@ -11,23 +11,23 @@ public interface GetTimerStateQuery {
     /**
      * Gets the current timer state as a DTO suitable for UI display.
      */
-    TimerStateDTO getCurrentState();
+    TimerCurrentStateDTO getCurrentState();
 
     /**
      * Data Transfer Object containing all timer state information.
      * Immutable snapshot of timer state for UI consumption.
      */
-    class TimerStateDTO {
+    class TimerCurrentStateDTO {
         private final int remainingSeconds;
-        private final TimerState state;
-        private final SessionType sessionType;
+        private final TimerStateDTO state;
+        private final SessionTypeDTO sessionType;
         private final int completedPomodoros;
         private final int currentCycle;
 
-        public TimerStateDTO(
+        public TimerCurrentStateDTO(
                 int remainingSeconds,
-                TimerState state,
-                SessionType sessionType,
+                TimerStateDTO state,
+                SessionTypeDTO sessionType,
                 int completedPomodoros,
                 int currentCycle) {
             this.remainingSeconds = remainingSeconds;
@@ -41,11 +41,11 @@ public interface GetTimerStateQuery {
             return remainingSeconds;
         }
 
-        public TimerState getState() {
+        public TimerStateDTO getState() {
             return state;
         }
 
-        public SessionType getSessionType() {
+        public SessionTypeDTO getSessionType() {
             return sessionType;
         }
 
@@ -58,11 +58,11 @@ public interface GetTimerStateQuery {
         }
 
         public boolean isRunning() {
-            return state == TimerState.RUNNING;
+            return state == TimerStateDTO.RUNNING;
         }
 
         public boolean isPaused() {
-            return state == TimerState.PAUSED;
+            return state == TimerStateDTO.PAUSED;
         }
     }
 }

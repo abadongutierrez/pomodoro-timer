@@ -1,11 +1,11 @@
 package com.jabaddon.pomodorotimer.adapter.in.ui.shell;
 
+import com.jabaddon.pomodorotimer.application.dto.SessionTypeDTO;
+import com.jabaddon.pomodorotimer.application.dto.TimerStateDTO;
 import com.jabaddon.pomodorotimer.application.port.in.GetTimerStateQuery;
 import com.jabaddon.pomodorotimer.application.port.in.PauseTimerUseCase;
 import com.jabaddon.pomodorotimer.application.port.in.ResetTimerUseCase;
 import com.jabaddon.pomodorotimer.application.port.in.StartTimerUseCase;
-import com.jabaddon.pomodorotimer.domain.model.SessionType;
-import com.jabaddon.pomodorotimer.domain.model.TimerState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,13 +69,13 @@ public class TimerCommands {
     @ShellMethod(key = "timer pause", value = "Pause the running timer")
     public String pause() {
         try {
-            GetTimerStateQuery.TimerStateDTO state = uiAdapter.getCurrentState();
+            GetTimerStateQuery.TimerCurrentStateDTO state = uiAdapter.getCurrentState();
 
-            if (state.getState() == TimerState.RUNNING) {
+            if (state.getState() == TimerStateDTO.RUNNING) {
                 pauseTimer.pause();
                 logger.info("Timer paused");
                 return "⏸  Timer paused at " + formatTime(state.getRemainingSeconds());
-            } else if (state.getState() == TimerState.PAUSED) {
+            } else if (state.getState() == TimerStateDTO.PAUSED) {
                 return "ℹ  Timer is already paused";
             } else {
                 return "✗ No timer running";
@@ -89,13 +89,13 @@ public class TimerCommands {
     @ShellMethod(key = "timer resume", value = "Resume a paused timer")
     public String resume() {
         try {
-            GetTimerStateQuery.TimerStateDTO state = uiAdapter.getCurrentState();
+            GetTimerStateQuery.TimerCurrentStateDTO state = uiAdapter.getCurrentState();
 
-            if (state.getState() == TimerState.PAUSED) {
+            if (state.getState() == TimerStateDTO.PAUSED) {
                 pauseTimer.resume();
                 logger.info("Timer resumed");
                 return "▶  Timer resumed";
-            } else if (state.getState() == TimerState.RUNNING) {
+            } else if (state.getState() == TimerStateDTO.RUNNING) {
                 return "ℹ  Timer is already running";
             } else {
                 return "✗ No timer to resume";
@@ -133,7 +133,7 @@ public class TimerCommands {
     @ShellMethod(key = "timer status", value = "Show current timer status")
     public String status() {
         try {
-            GetTimerStateQuery.TimerStateDTO state = uiAdapter.getCurrentState();
+            GetTimerStateQuery.TimerCurrentStateDTO state = uiAdapter.getCurrentState();
             return formatDetailedStatus(state);
         } catch (Exception e) {
             logger.error("Error getting timer status", e);
@@ -152,7 +152,7 @@ public class TimerCommands {
         }
     }
 
-    private String formatDetailedStatus(GetTimerStateQuery.TimerStateDTO state) {
+    private String formatDetailedStatus(GetTimerStateQuery.TimerCurrentStateDTO state) {
         StringBuilder sb = new StringBuilder();
         sb.append("\n");
         sb.append("┌─────────────────────────────────────┐\n");
@@ -165,7 +165,7 @@ public class TimerCommands {
         return sb.toString();
     }
 
-    private String getStateDisplay(TimerState state) {
+    private String getStateDisplay(TimerStateDTO state) {
         return switch (state) {
             case RUNNING -> "⏱  RUNNING";
             case PAUSED -> "⏸  PAUSED";
@@ -175,8 +175,8 @@ public class TimerCommands {
         };
     }
 
-    private String getSessionTypeDisplay(SessionType type) {
-        return switch (type) {
+    private String getSessionTypeDisplay(SessionTypeDTO type) {
+        return switch (type.sessionType()) {
             case WORK -> "🍅 Work Session";
             case SHORT_BREAK -> "☕ Short Break";
             case LONG_BREAK -> "🌴 Long Break";

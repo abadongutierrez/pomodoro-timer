@@ -1,4 +1,4 @@
-package com.jabaddon.pomodorotimer.adapter.in.ui;
+package com.jabaddon.pomodorotimer.adapter.in.ui.javafx;
 
 /**
  * Represents the display mode of the timer UI.
