@@ -1,6 +1,8 @@
 package com.jabaddon.pomodorotimer.adapter.in.ui.javafx;
 
 import com.jabaddon.pomodorotimer.application.service.TimerApplicationService;
+import javafx.scene.Cursor;
+import javafx.scene.input.MouseButton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -163,10 +165,26 @@ public class TimerViewController implements UIPort {
         compactModeLayout = buildCompactModeLayout();
 
         // Start with full mode
-        scene = new Scene(fullModeLayout, 600, 500);
+        scene = new Scene(fullModeLayout, 600, 400);
+        // double click makes fullmoode go to compact mode
+        fullModeLayout.setOnMouseClicked(event -> {
+            if (event.getButton() == MouseButton.PRIMARY) {
+                if (event.getClickCount() == 2) {
+                    switchToCompactMode();
+                }
+            }
+        });
+        // double click makes compact mode go to full mode again
+        compactModeLayout.setOnMouseClicked(event -> {
+            if (event.getButton() == MouseButton.PRIMARY) {
+                if (event.getClickCount() == 2) {
+                    switchToFullMode();
+                }
+            }
+        });
 
         // Setup focus listener for automatic view switching
-        setupFocusListener();
+        //setupFocusListener();
 
         // Initialize system tray
         initializeSystemTray();
@@ -294,7 +312,7 @@ public class TimerViewController implements UIPort {
     }
 
     // ========== Focus Listener & View Switching ==========
-
+    // TODO remove later
     private void setupFocusListener() {
         stage.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
             if (isNowFocused) {
@@ -314,9 +332,6 @@ public class TimerViewController implements UIPort {
         stage.setHeight(500);
         stage.setAlwaysOnTop(false);
         stage.setOpacity(1.0);
-
-        // Center on screen
-        stage.centerOnScreen();
     }
 
     private void switchToCompactMode() {
